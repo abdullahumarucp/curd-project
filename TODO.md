@@ -14,3 +14,16 @@
 - [x] Update backend/routes/tasks.js to use Task model (assuming similar structure)
 - [x] Test backend to ensure MongoDB connection and CRUD operations work (Note: Requires local MongoDB instance running on port 27017)
 - [x] Verify data persistence and CRUD operations through API testing
+
+# TODO: Convert Backend to MVC Pattern
+
+- [x] Create backend/controllers directory
+- [x] Create backend/controllers/authController.js with register and login functions
+- [x] Create backend/controllers/itemsController.js with CRUD functions
+- [x] Create backend/controllers/projectsController.js with CRUD functions
+- [x] Create backend/controllers/tasksController.js with CRUD functions
+- [x] Refactor backend/routes/auth.js to use authController
+- [x] Refactor backend/routes/items.js to use itemsController
+- [x] Refactor backend/routes/projects.js to use projectsController
+- [x] Refactor backend/routes/tasks.js to use tasksController
+- [x] Test backend server to ensure MVC structure works correctly
