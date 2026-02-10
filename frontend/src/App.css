@@ -1,0 +1,74 @@
+.App {
+  text-align: center;
+}
+
+.App h1 {
+  color: #282c34;
+}
+
+form {
+  margin: 20px auto;
+  max-width: 400px;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+form div {
+  margin-bottom: 10px;
+}
+
+form label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+form input {
+  width: 100%;
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+form button {
+  padding: 10px 20px;
+  background-color: #61dafb;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+form button:hover {
+  background-color: #21b4d6;
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+li {
+  margin: 10px 0;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+li button {
+  margin-left: 10px;
+  padding: 5px 10px;
+  background-color: #ff6b6b;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+li button:first-of-type {
+  background-color: #4ecdc4;
+}
+
+li button:hover {
+  opacity: 0.8;
+}
