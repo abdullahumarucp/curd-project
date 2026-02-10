@@ -9,10 +9,17 @@ const API_BASE_URL = 'http://localhost:5000/api/items';
 function App() {
   const [items, setItems] = useState([]);
   const [editingItem, setEditingItem] = useState(null);
+  const [showForm, setShowForm] = useState(false);
+  const [searchName, setSearchName] = useState('');
+  const [filteredItems, setFilteredItems] = useState([]);
 
   useEffect(() => {
     fetchItems();
   }, []);
+
+  useEffect(() => {
+    setFilteredItems(items.filter(item => item.name.toLowerCase().includes(searchName.toLowerCase())));
+  }, [items, searchName]);
 
   const fetchItems = async () => {
     try {
@@ -34,8 +41,8 @@ function App() {
 
   const updateItem = async (item) => {
     try {
-      const response = await axios.put(`${API_BASE_URL}/${editingItem.id}`, item);
-      setItems(items.map(i => i.id === editingItem.id ? response.data : i));
+      const response = await axios.put(`${API_BASE_URL}/${editingItem._id}`, item);
+      setItems(items.map(i => i._id === editingItem._id ? response.data : i));
       setEditingItem(null);
     } catch (error) {
       console.error('Error updating item:', error);
@@ -45,7 +52,7 @@ function App() {
   const deleteItem = async (id) => {
     try {
       await axios.delete(`${API_BASE_URL}/${id}`);
-      setItems(items.filter(i => i.id !== id));
+      setItems(items.filter(i => i._id !== id));
     } catch (error) {
       console.error('Error deleting item:', error);
     }
@@ -58,8 +65,18 @@ function App() {
   return (
     <div className="App">
       <h1>CRUD App</h1>
-      <ItemForm onSubmit={editingItem ? updateItem : addItem} item={editingItem} />
-      <ItemList items={items} onEdit={editItem} onDelete={deleteItem} />
+      <div>
+        <button onClick={() => setShowForm(!showForm)}>Add Data</button>
+        <input
+          type="text"
+          placeholder="Find by name"
+          value={searchName}
+          onChange={(e) => setSearchName(e.target.value)}
+        />
+        <button onClick={() => setFilteredItems(items)}>List</button>
+      </div>
+      {showForm && <ItemForm onSubmit={editingItem ? updateItem : addItem} item={editingItem} />}
+      <ItemList items={filteredItems.length > 0 ? filteredItems : items} onEdit={editItem} onDelete={deleteItem} />
     </div>
   );
 }

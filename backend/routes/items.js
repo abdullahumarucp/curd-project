@@ -1,52 +1,83 @@
 const express = require('express');
+const mongoose = require('mongoose');
+const Item = require('../models/Item');
+const { verifyToken } = require('../middleware/auth');
 const router = express.Router();
 
-
-let items = [
-  // { id: 1, name: 'Item 1', description: 'Description for Item 1' },
-  // { id: 2, name: 'Item 2', description: 'Description for Item 2' }
-];
-let nextId = 1;
-
-router.get('/', (req, res) => {
-  res.json(items);
-});
-
-
-router.get('/:id', (req, res) => {
-  const item = items.find(i => i.id === parseInt(req.params.id));
-  if (!item) return res.status(404).json({ message: 'Item not found' });
-  res.json(item);
-});
-
-
-router.post('/', (req, res) => {
-  const { name, description } = req.body;
-  if (!name || !description) {
-    return res.status(400).json({ message: 'Name and description are required' });
+router.get('/', async (req, res) => {
+  try {
+    const items = await Item.find();
+    res.json(items);
+  } catch (error) {
+    console.error('Error fetching items:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
-  const newItem = { id: nextId++, name, description };
-  items.push(newItem);
-  res.status(201).json(newItem);
+});
+
+
+router.get('/:id', verifyToken, async (req, res) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: 'Invalid item ID' });
+    }
+    const item = await Item.findById(req.params.id);
+    if (!item) return res.status(404).json({ message: 'Item not found' });
+    res.json(item);
+  } catch (error) {
+    console.error('Error fetching item:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+
+router.post('/', async (req, res) => {
+  try {
+    const { name, description } = req.body;
+    if (!name || !description) {
+      return res.status(400).json({ message: 'Name and description are required' });
+    }
+    const newItem = new Item({ name, description });
+    await newItem.save();
+    res.status(201).json(newItem);
+  } catch (error) {
+    console.error('Error creating item:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
 });
 
 
 
-router.put('/:id', (req, res) => {
-  const item = items.find(i => i.id === parseInt(req.params.id));
-  if (!item) return res.status(404).json({ message: 'Item not found' });
-  const { name, description } = req.body;
-  if (name) item.name = name;
-  if (description) item.description = description;
-  res.json(item);
+router.put('/:id', async (req, res) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: 'Invalid item ID' });
+    }
+    const item = await Item.findById(req.params.id);
+    if (!item) return res.status(404).json({ message: 'Item not found' });
+    const { name, description } = req.body;
+    if (name !== undefined) item.name = name;
+    if (description !== undefined) item.description = description;
+    await item.save();
+    res.json(item);
+  } catch (error) {
+    console.error('Error updating item:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
 });
 
 
-router.delete('/:id', (req, res) => {
-  const index = items.findIndex(i => i.id === parseInt(req.params.id));
-  if (index === -1) return res.status(404).json({ message: 'Item not found' });
-  items.splice(index, 1);
-  res.json({ message: 'Item deleted' });
+router.delete('/:id', verifyToken, async (req, res) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: 'Invalid item ID' });
+    }
+    const item = await Item.findByIdAndDelete(req.params.id);
+    if (!item) return res.status(404).json({ message: 'Item not found' });
+    res.json({ message: 'Item deleted' });
+  } catch (error) {
+    console.error('Error deleting item:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
 });
 
 module.exports = router;

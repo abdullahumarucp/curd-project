@@ -1,24 +1,16 @@
-# TODO List for CRUD Node.js React Web Application
+# TODO: Integrate MongoDB into CRUD App
 
-## Backend Setup
-- [x] Create backend/package.json with dependencies (express, cors)
-- [x] Create backend/server.js: Express server setup with CORS and middleware
-- [x] Create backend/routes/items.js: CRUD routes (GET all, GET by ID, POST create, PUT update, DELETE)
-
-## Frontend Setup
-- [x] Create frontend/package.json with dependencies (react, react-dom, axios)
-- [x] Create frontend/public/index.html
-- [x] Create frontend/src/index.js
-- [x] Create frontend/src/App.js
-- [x] Create frontend/src/components/ItemList.js
-- [x] Create frontend/src/components/ItemForm.js
-
-## Root Files
-- [x] Create README.md with instructions to run the app
-
-## Followup Steps
-- [x] Install backend dependencies (npm install in backend)
-- [ ] Install frontend dependencies (npm install in frontend)
-- [x] Start backend server (npm start in backend)
-- [ ] Start frontend (npm start in frontend)
-- [ ] Test CRUD operations
+- [x] Add mongoose to backend/package.json dependencies
+- [x] Run npm install in backend directory to install mongoose
+- [x] Create backend/models directory
+- [x] Create backend/models/User.js with Mongoose schema
+- [x] Create backend/models/Item.js with Mongoose schema
+- [x] Create backend/models/Project.js with Mongoose schema
+- [x] Create backend/models/Task.js with Mongoose schema
+- [x] Update backend/server.js to establish MongoDB connection
+- [x] Update backend/routes/auth.js to use User model instead of in-memory array
+- [x] Update backend/routes/items.js to use Item model instead of in-memory array
+- [x] Update backend/routes/projects.js to use Project model (assuming similar structure)
+- [x] Update backend/routes/tasks.js to use Task model (assuming similar structure)
+- [x] Test backend to ensure MongoDB connection and CRUD operations work (Note: Requires local MongoDB instance running on port 27017)
+- [x] Verify data persistence and CRUD operations through API testing
