@@ -1,8 +1,8 @@
-const Project = require('../models/Project');
+const projectService = require('../services/projectService');
 
 const getProjects = async (req, res) => {
   try {
-    const userProjects = await Project.find({ userId: req.user.id });
+    const userProjects = await projectService.getProjects(req.user.id);
     res.json(userProjects);
   } catch (error) {
     console.error('Error fetching projects:', error);
@@ -12,12 +12,12 @@ const getProjects = async (req, res) => {
 
 const getProjectById = async (req, res) => {
   try {
-    const project = await Project.findOne({ _id: req.params.id, userId: req.user.id });
-    if (!project) {
-      return res.status(404).json({ message: 'Project not found' });
-    }
+    const project = await projectService.getProjectById(req.params.id, req.user.id);
     res.json(project);
   } catch (error) {
+    if (error.message === 'Project not found') {
+      return res.status(404).json({ message: error.message });
+    }
     console.error('Error fetching project:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
@@ -25,25 +25,12 @@ const getProjectById = async (req, res) => {
 
 const createProject = async (req, res) => {
   try {
-    const { name, description } = req.body;
-
-    // Validate input
-    if (!name) {
-      return res.status(400).json({ message: 'Project name is required' });
-    }
-
-    // Create new project
-    const newProject = new Project({
-      name,
-      description: description || '',
-      userId: req.user.id // Associate with authenticated user
-    });
-
-    // Save project to database
-    await newProject.save();
-
+    const newProject = await projectService.createProject(req.body, req.user.id);
     res.status(201).json(newProject);
   } catch (error) {
+    if (error.message === 'Project name is required') {
+      return res.status(400).json({ message: error.message });
+    }
     console.error('Error creating project:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
@@ -51,20 +38,12 @@ const createProject = async (req, res) => {
 
 const updateProject = async (req, res) => {
   try {
-    const project = await Project.findOne({ _id: req.params.id, userId: req.user.id });
-    if (!project) {
-      return res.status(404).json({ message: 'Project not found' });
-    }
-
-    const { name, description } = req.body;
-
-    // Update fields if provided
-    if (name !== undefined) project.name = name;
-    if (description !== undefined) project.description = description;
-
-    await project.save();
+    const project = await projectService.updateProject(req.params.id, req.body, req.user.id);
     res.json(project);
   } catch (error) {
+    if (error.message === 'Project not found') {
+      return res.status(404).json({ message: error.message });
+    }
     console.error('Error updating project:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
@@ -72,13 +51,12 @@ const updateProject = async (req, res) => {
 
 const deleteProject = async (req, res) => {
   try {
-    const project = await Project.findOneAndDelete({ _id: req.params.id, userId: req.user.id });
-    if (!project) {
-      return res.status(404).json({ message: 'Project not found' });
-    }
-
+    await projectService.deleteProject(req.params.id, req.user.id);
     res.json({ message: 'Project deleted successfully' });
   } catch (error) {
+    if (error.message === 'Project not found') {
+      return res.status(404).json({ message: error.message });
+    }
     console.error('Error deleting project:', error);
     res.status(500).json({ message: 'Internal server error' });
   }

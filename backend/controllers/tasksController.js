@@ -1,8 +1,8 @@
-const Task = require('../models/Task');
+const taskService = require('../services/taskService');
 
 const getTasks = async (req, res) => {
   try {
-    const userTasks = await Task.find({ userId: req.user.id });
+    const userTasks = await taskService.getTasks(req.user.id);
     res.json(userTasks);
   } catch (error) {
     console.error('Error fetching tasks:', error);
@@ -12,12 +12,12 @@ const getTasks = async (req, res) => {
 
 const getTaskById = async (req, res) => {
   try {
-    const task = await Task.findOne({ _id: req.params.id, userId: req.user.id });
-    if (!task) {
-      return res.status(404).json({ message: 'Task not found' });
-    }
+    const task = await taskService.getTaskById(req.params.id, req.user.id);
     res.json(task);
   } catch (error) {
+    if (error.message === 'Task not found') {
+      return res.status(404).json({ message: error.message });
+    }
     console.error('Error fetching task:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
@@ -25,27 +25,12 @@ const getTaskById = async (req, res) => {
 
 const createTask = async (req, res) => {
   try {
-    const { title, description, projectId, status } = req.body;
-
-    // Validate input
-    if (!title) {
-      return res.status(400).json({ message: 'Task title is required' });
-    }
-
-    // Create new task
-    const newTask = new Task({
-      title,
-      description: description || '',
-      projectId: projectId || null, // Optional association with project
-      status: status || 'pending', // Default status
-      userId: req.user.id // Associate with authenticated user
-    });
-
-    // Save task to database
-    await newTask.save();
-
+    const newTask = await taskService.createTask(req.body, req.user.id);
     res.status(201).json(newTask);
   } catch (error) {
+    if (error.message === 'Task title is required') {
+      return res.status(400).json({ message: error.message });
+    }
     console.error('Error creating task:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
@@ -53,22 +38,12 @@ const createTask = async (req, res) => {
 
 const updateTask = async (req, res) => {
   try {
-    const task = await Task.findOne({ _id: req.params.id, userId: req.user.id });
-    if (!task) {
-      return res.status(404).json({ message: 'Task not found' });
-    }
-
-    const { title, description, projectId, status } = req.body;
-
-    // Update fields if provided
-    if (title !== undefined) task.title = title;
-    if (description !== undefined) task.description = description;
-    if (projectId !== undefined) task.projectId = projectId;
-    if (status !== undefined) task.status = status;
-
-    await task.save();
+    const task = await taskService.updateTask(req.params.id, req.body, req.user.id);
     res.json(task);
   } catch (error) {
+    if (error.message === 'Task not found') {
+      return res.status(404).json({ message: error.message });
+    }
     console.error('Error updating task:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
@@ -76,13 +51,12 @@ const updateTask = async (req, res) => {
 
 const deleteTask = async (req, res) => {
   try {
-    const task = await Task.findOneAndDelete({ _id: req.params.id, userId: req.user.id });
-    if (!task) {
-      return res.status(404).json({ message: 'Task not found' });
-    }
-
+    await taskService.deleteTask(req.params.id, req.user.id);
     res.json({ message: 'Task deleted successfully' });
   } catch (error) {
+    if (error.message === 'Task not found') {
+      return res.status(404).json({ message: error.message });
+    }
     console.error('Error deleting task:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
